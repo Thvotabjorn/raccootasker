@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Float
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime
 from sqlalchemy.orm import relationship
 
 from .database import Base
@@ -11,6 +11,9 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     password = Column(String)
     is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime)
+
+    tasks = relationship("Task", back_populates="author")
 
 
 class Task(Base):
@@ -19,11 +22,18 @@ class Task(Base):
     title = Column(String, index=True)
     description = Column(String)
     private = Column(Boolean, default=True)
-    author = Column('user_id', Integer, ForeignKey('user.id'))
+    author_id = Column(Integer, ForeignKey('user.id'))
+    created_at = Column(DateTime)
+
+    author = relationship("User", back_populates="tasks")
+    tasks = relationship("Timer", back_populates="task")
 
 
 class Timer(Base):
     __tablename__ = "timers"
     id = Column(Integer, primary_key=True, index=True)
-    task = Column('task_id', Integer, ForeignKey('task.id'), nullable=True)
-    time = Column(Integer)
+    task_id = Column(Integer, ForeignKey('task.id'))
+    end_time = Column(DateTime)
+    created_at = Column(DateTime)
+
+    tasks = relationship("Task", back_populates="timers")
